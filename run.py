@@ -6,7 +6,7 @@ from bson.json_util import dumps
 
 def create_folder_backup(dbname):
     dt = datetime.datetime.now()
-    directory = ('backups/bk_%s_%s-%s-%s__%s_%s' % (dbname,dt.month,dt.day,dt.year, dt.hour, dt.minute))
+    directory = (f'backups/bk_{dbname}_{dt.month}-{dt.day}-{dt.year}__{dt.hour}_{dt.minute}')
     if not os.path.exists(directory):
         os.makedirs(directory)
     return directory
@@ -20,7 +20,7 @@ def run_backup(mongoUri, dbname):
     for collection in collections:
         db_collection = db[collection]
         cursor = db_collection.find({})
-        filename = ('%s/%s.json' %(directory,collection))
+        filename = (f'{directory}/{collection}.json')
         files_to_compress.append(filename)
         with open(filename, 'w') as file:
             file.write('[')
@@ -28,7 +28,7 @@ def run_backup(mongoUri, dbname):
                 file.write(dumps(document))
                 file.write(',')
             file.write(']')
-    tar_file = ('%s.tar.gz' % (directory)) 
+    tar_file = (f'{directory}.tar.gz') 
     make_tarfile(tar_file,files_to_compress)
 
 def make_tarfile(output_filename, source_dir):
@@ -48,7 +48,7 @@ if __name__ == '__main__':
         host = sys.argv[3]
         port = sys.argv[4]
         dbname = sys.argv[5]
-        mongoUri = ('mongodb://%s:%s@%s:%s/%s?authSource=admin' % (username, password, host, port,dbname))
+        mongoUri = (f'mongodb://{username}:{password}@{host}:{port}/{dbname}?authSource=admin')
         try:
             run_backup(mongoUri, dbname)
             print('[*] Successfully performed backup')
